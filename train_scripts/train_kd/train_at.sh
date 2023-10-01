@@ -1,30 +1,23 @@
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
-    python -m torch.distributed.launch --nproc_per_node=8 \
-    train_kd.py \
-    --teacher-model deeplabv3 \
-    --student-model deeplabv3 \
-    --teacher-backbone resnet101 \
-    --student-backbone resnet18 \
-    --lambda-kd 1.0 \
-    --lambda-at 10000. \
-    --data [your dataset path]/cityscapes/ \
-    --save-dir [your directory path to store checkpoint files] \
-    --log-dir [your directory path to store log files] \
-    --teacher-pretrained [your teacher weights path]/deeplabv3_resnet101_citys_best_model.pth \
-    --student-pretrained-base [your pretrained-backbone path]/resnet18-imagenet.pth
+#!/bin/bash
+#SBATCH --account=group3
+#SBATCH --output=/home/aaryang/experiments/efficientvit/cityscape.out
+#SBATCH --nodes=1   # Get one node
+#SBATCH --partition=gpu
+#SBATCH --gres=gpu:1            # And two GPU
+#SBATCH --cpus-per-task=8            # Two cores per task
+source /home/aaryang/anaconda3/bin/activate
+conda activate cirkd
+
+echo CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES
+
+nvidia-smi
 
 
-CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 \
-    python -m torch.distributed.launch --nproc_per_node=8 \
+
+python3 -m torch.distributed.launch --nproc_per_node=1 \
     train_kd.py \
-    --teacher-model deeplabv3 \
-    --student-model deeplab_mobile \
-    --teacher-backbone resnet101 \
-    --student-backbone mobilenetv2 \
     --lambda-kd 1.0 \
-    --lambda-at 10000. \
-    --data [your dataset path]/cityscapes/ \
-    --save-dir [your directory path to store checkpoint files] \
-    --log-dir [your directory path to store log files] \
-    --teacher-pretrained [your teacher weights path]/deeplabv3_resnet101_citys_best_model.pth \
-    --student-pretrained-base [your pretrained-backbone path]/mobilenetv2-imagenet.pth
+    --data /share/datasets/Cityscapes/ \
+    --save-dir /home/aaryang/experiments/CIRKD/checkpoints/ \
+    --log-dir /home/aaryang/experiments/CIRKD/logs/ \
+    --batch-size 8
