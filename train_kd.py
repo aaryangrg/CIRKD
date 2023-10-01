@@ -33,6 +33,10 @@ from dataset.camvid import CamvidTrainSet, CamvidValSet
 from dataset.voc import VOCDataTrainSet, VOCDataValSet
 from dataset.coco_stuff_164k import CocoStuff164kTrainSet, CocoStuff164kValSet
 
+SAVE_PATH = "/home/aaryang/experiments/CIRKD/checkpoints/"
+
+# EfficientViT models
+from efficientvit.efficientvit.seg_model_zoo import create_seg_model
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Semantic Segmentation Training With Pytorch')
@@ -192,41 +196,53 @@ class Trainer(object):
                                           num_workers=args.workers,
                                           pin_memory=True)
 
-        # create network
+    
+
+        # self.t_model = get_segmentation_model(model=args.teacher_model, 
+        #                                     backbone=args.teacher_backbone,
+        #                                     local_rank=args.local_rank,
+        #                                     pretrained_base='None',
+        #                                     pretrained=args.teacher_pretrained,
+        #                                     aux=True, 
+        #                                     norm_layer=nn.BatchNorm2d,
+        #                                     num_class=train_dataset.num_class).to(self.args.local_rank)
+
+        # self.s_model = get_segmentation_model(model=args.student_model, 
+        #                                     backbone=args.student_backbone,
+        #                                     local_rank=args.local_rank,
+        #                                     pretrained_base=args.student_pretrained_base,
+        #                                     pretrained='None',
+        #                                     aux=args.aux, 
+        #                                     norm_layer=BatchNorm2d,
+        #                                     num_class=train_dataset.num_class).to(self.device)
+        
+        # Do I need to modify this for my student model? --> Probably yes
         BatchNorm2d = nn.SyncBatchNorm if args.distributed else nn.BatchNorm2d
 
-        self.t_model = get_segmentation_model(model=args.teacher_model, 
-                                            backbone=args.teacher_backbone,
-                                            local_rank=args.local_rank,
-                                            pretrained_base='None',
-                                            pretrained=args.teacher_pretrained,
-                                            aux=True, 
-                                            norm_layer=nn.BatchNorm2d,
-                                            num_class=train_dataset.num_class).to(self.args.local_rank)
+        # Pre-decided model, dataset and weights path --> modify to accept new  arguments later
+        self.t_model = create_seg_model("l1", "cityscapes", pretrained = True, weight_url="/home/aaryang/experiments/CIRKD/model_weights/l1.pt")     
+        self.s_model = create_seg_model("b0", "cityscapes", pretrained = False)        
 
-        self.s_model = get_segmentation_model(model=args.student_model, 
-                                            backbone=args.student_backbone,
-                                            local_rank=args.local_rank,
-                                            pretrained_base=args.student_pretrained_base,
-                                            pretrained='None',
-                                            aux=args.aux, 
-                                            norm_layer=BatchNorm2d,
-                                            num_class=train_dataset.num_class).to(self.device)
+        # All parameters of parent must be set with false
+        for param in self.t_model.parameters() :
+            param.requires_grad = False
         
-        for t_n, t_p in self.t_model.named_parameters():
-            t_p.requires_grad = False
+        # for t_n, t_p in self.t_model.named_parameters():
+            # t_p.requires_grad = False
+
+        # Set both to evaluation mode
         self.t_model.eval()
         self.s_model.eval()
 
-        self.D_model = Discriminator(preprocess_GAN_mode=1, input_channel=train_dataset.num_class, distributed=args.distributed).cuda()
+        # self.D_model = Discriminator(preprocess_GAN_mode=1, input_channel=train_dataset.num_class, distributed=args.distributed).cuda()
 
-        # resume checkpoint if needed
-        if args.resume:
-            if os.path.isfile(args.resume):
-                name, ext = os.path.splitext(args.resume)
-                assert ext == '.pkl' or '.pth', 'Sorry only .pth and .pkl files supported.'
-                print('Resuming training, loading {}...'.format(args.resume))
-                self.s_model.load_state_dict(torch.load(args.resume, map_location=lambda storage, loc: storage))
+        # Modify this function if I require it
+        # if args.resume:
+        #     if os.path.isfile(args.resume):
+        #         name, ext = os.path.splitext(args.resume)
+        #         assert ext == '.pkl' or '.pth', 'Sorry only .pth and .pkl files supported.'
+        #         print('Resuming training, loading {}...'.format(args.resume))
+        #         self.s_model.load_state_dict(torch.load(args.resume, map_location=lambda storage, loc: storage))
 
         # create criterion
         x = torch.randn(1,3,512,512).cuda()
@@ -237,48 +253,51 @@ class Trainer(object):
 
         self.criterion = SegCrossEntropyLoss(ignore_index=args.ignore_label).to(self.device)
         self.criterion_kd = CriterionKD(temperature=args.kd_temperature).to(self.device)
-        self.criterion_adv = CriterionAdv('hinge').to(self.device)
-        self.criterion_adv_for_G = CriterionAdvForG('hinge').to(self.device)
-        self.criterion_skd = CriterionStructuralKD().to(self.device)
-        self.criterion_ifv = CriterionIFV(train_dataset.num_class).to(self.device)
-        self.criterion_cwd = CriterionCWD(s_channels, t_channels, norm_type='channel',divergence='kl', temperature=4.).to(self.device)
-        self.criterion_fitnet = CriterionFitNet(s_channels, t_channels).to(self.device)
-        self.criterion_at = CriterionAT().to(self.device)
-        self.criterion_dsd = CriterionDoubleSimKD().to(self.device)
+        # self.criterion_adv = CriterionAdv('hinge').to(self.device)
+        # self.criterion_adv_for_G = CriterionAdvForG('hinge').to(self.device)
+        # self.criterion_skd = CriterionStructuralKD().to(self.device)
+        # self.criterion_ifv = CriterionIFV(train_dataset.num_class).to(self.device)
+        # self.criterion_cwd = CriterionCWD(s_channels, t_channels, norm_type='channel',divergence='kl', temperature=4.).to(self.device)
+        # self.criterion_fitnet = CriterionFitNet(s_channels, t_channels).to(self.device)
+        # self.criterion_at = CriterionAT().to(self.device)
+        # self.criterion_dsd = CriterionDoubleSimKD().to(self.device)
 
-    
+        # List of all trainable params
         params_list = nn.ModuleList([])
         params_list.append(self.s_model)
-        params_list.append(self.criterion_cwd)
-        params_list.append(self.criterion_fitnet)
 
+        # params_list.append(self.criterion_cwd)
+        # params_list.append(self.criterion_fitnet)
 
+        
+        # Change to Adam?
         self.optimizer = torch.optim.SGD(params_list.parameters(),
                                          lr=args.lr,
                                          momentum=args.momentum,
                                          weight_decay=args.weight_decay)
 
-        self.D_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad,
-                                            self.D_model.parameters()), 
-                                            4e-4, [0.9, 0.99])
+        # self.D_optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad,
+        #                                     self.D_model.parameters()), 
+        #                                     4e-4, [0.9, 0.99])
         
         if args.distributed:
             self.s_model = nn.parallel.DistributedDataParallel(self.s_model, 
                                                                 device_ids=[args.local_rank],
                                                                 output_device=args.local_rank)
-            self.D_model = nn.parallel.DistributedDataParallel(self.D_model, device_ids=[args.local_rank],
-                                                                output_device=args.local_rank)
-            self.criterion_cwd = nn.parallel.DistributedDataParallel(self.criterion_cwd, 
-                                                                device_ids=[args.local_rank],
-                                                                output_device=args.local_rank)
-            self.criterion_fitnet = nn.parallel.DistributedDataParallel(self.criterion_fitnet, 
-                                                                device_ids=[args.local_rank],
-                                                                output_device=args.local_rank)
+            # self.D_model = nn.parallel.DistributedDataParallel(self.D_model, device_ids=[args.local_rank],
+            #                                                     output_device=args.local_rank)
+            # self.criterion_cwd = nn.parallel.DistributedDataParallel(self.criterion_cwd, 
+            #                                                     device_ids=[args.local_rank],
+            #                                                     output_device=args.local_rank)
+            # self.criterion_fitnet = nn.parallel.DistributedDataParallel(self.criterion_fitnet, 
+            #                                                     device_ids=[args.local_rank],
+            #                                                     output_device=args.local_rank) 
             
         # evaluation metrics
         self.metric = SegmentationMetric(train_dataset.num_class)
         self.best_pred = 0.0
 
+    # What are these 3 functions and where are they used?
     def adjust_lr(self, base_lr, iter, max_iter, power):
         cur_lr = base_lr*((1-float(iter)/max_iter)**(power))
         for param_group in self.optimizer.param_groups:
@@ -316,114 +335,128 @@ class Trainer(object):
 
             s_outputs = self.s_model(images)
             
+            # Task loss --> compared to actual targets
             if self.args.aux:
                 task_loss = self.criterion(s_outputs[0], targets) + 0.4 * self.criterion(s_outputs[1], targets)
             else:
                 task_loss = self.criterion(s_outputs[0], targets)
             
             kd_loss = torch.tensor(0.).cuda()
-            adv_G_loss = torch.tensor(0.).cuda()
-            adv_D_loss = torch.tensor(0.).cuda()
-            skd_loss = torch.tensor(0.).cuda()
-            cwd_fea_loss = torch.tensor(0.).cuda()
-            cwd_logit_loss = torch.tensor(0.).cuda()
-            ifv_loss = torch.tensor(0.).cuda()
-            fitnet_loss = torch.tensor(0.).cuda()
-            at_loss = torch.tensor(0.).cuda()
-            psd_loss = torch.tensor(0.).cuda()
-            csd_loss = torch.tensor(0.).cuda()
+            # adv_G_loss = torch.tensor(0.).cuda()
+            # adv_D_loss = torch.tensor(0.).cuda()
+            # skd_loss = torch.tensor(0.).cuda()
+            # cwd_fea_loss = torch.tensor(0.).cuda()
+            # cwd_logit_loss = torch.tensor(0.).cuda()
+            # ifv_loss = torch.tensor(0.).cuda()
+            # fitnet_loss = torch.tensor(0.).cuda()
+            # at_loss = torch.tensor(0.).cuda()
+            # psd_loss = torch.tensor(0.).cuda()
+            # csd_loss = torch.tensor(0.).cuda()
             
 
-            adv_G_loss = self.args.lambda_adv*self.criterion_adv_for_G(self.D_model(s_outputs[0]))
+            # adv_G_loss = self.args.lambda_adv*self.criterion_adv_for_G(self.D_model(s_outputs[0]))
 
-            adv_D_loss = self.args.lambda_d*(self.criterion_adv(self.D_model(s_outputs[0].detach()), 
-                                            self.D_model(t_outputs[0].detach())))
+            # adv_D_loss = self.args.lambda_d*(self.criterion_adv(self.D_model(s_outputs[0].detach()), 
+            #                                 self.D_model(t_outputs[0].detach())))
             
+            # Change weight of lambda_kd = 1
             if self.args.lambda_kd != 0.:
                 kd_loss = self.args.lambda_kd * self.criterion_kd(s_outputs[0], t_outputs[0])
-            if self.args.lambda_skd != 0:
-                skd_loss = self.args.lambda_skd * self.criterion_skd(s_outputs[-1], t_outputs[-1])
-            if self.args.lambda_cwd_fea != 0:
-                cwd_fea_loss = self.args.lambda_cwd_fea * self.criterion_cwd(s_outputs[-1], t_outputs[-1])
-            if self.args.lambda_cwd_logit != 0:
-                cwd_logit_loss = self.args.lambda_cwd_logit * self.criterion_cwd(s_outputs[0], t_outputs[0])
-            if self.args.lambda_ifv != 0:
-                ifv_loss = self.args.lambda_ifv * self.criterion_ifv(s_outputs[-1], t_outputs[-1], targets)
-            if self.args.lambda_fitnet != 0:
-                fitnet_loss = self.args.lambda_fitnet * self.criterion_fitnet(s_outputs[-1], t_outputs[-1])
-            if self.args.lambda_at != 0:
-                at_loss = self.args.lambda_at * self.criterion_at(s_outputs[-1], t_outputs[-1])
-            if self.args.lambda_psd != 0. and self.args.lambda_csd != 0.:  
-                feat_s_list = [s_outputs[-2], s_outputs[-1], s_outputs[0]]
-                feat_t_list = [t_outputs[-2], t_outputs[-1], t_outputs[0]]
-                psd_loss, csd_loss = self.criterion_dsd(feat_s_list, feat_t_list)
-                psd_loss = self.args.lambda_psd * psd_loss
-                csd_loss = self.args.lambda_csd * csd_loss
 
-            losses = task_loss + kd_loss + adv_G_loss + \
-                        skd_loss + cwd_fea_loss + cwd_logit_loss +\
-                        ifv_loss + at_loss + fitnet_loss +\
-                        psd_loss + csd_loss 
-            D_losses = adv_D_loss
 
+            # if self.args.lambda_skd != 0:
+            #     skd_loss = self.args.lambda_skd * self.criterion_skd(s_outputs[-1], t_outputs[-1])
+            # if self.args.lambda_cwd_fea != 0:
+            #     cwd_fea_loss = self.args.lambda_cwd_fea * self.criterion_cwd(s_outputs[-1], t_outputs[-1])
+            # if self.args.lambda_cwd_logit != 0:
+            #     cwd_logit_loss = self.args.lambda_cwd_logit * self.criterion_cwd(s_outputs[0], t_outputs[0])
+            # if self.args.lambda_ifv != 0:
+            #     ifv_loss = self.args.lambda_ifv * self.criterion_ifv(s_outputs[-1], t_outputs[-1], targets)
+            # if self.args.lambda_fitnet != 0:
+            #     fitnet_loss = self.args.lambda_fitnet * self.criterion_fitnet(s_outputs[-1], t_outputs[-1])
+            # if self.args.lambda_at != 0:
+            #     at_loss = self.args.lambda_at * self.criterion_at(s_outputs[-1], t_outputs[-1])
+            # if self.args.lambda_psd != 0. and self.args.lambda_csd != 0.:  
+            #     feat_s_list = [s_outputs[-2], s_outputs[-1], s_outputs[0]]
+            #     feat_t_list = [t_outputs[-2], t_outputs[-1], t_outputs[0]]
+            #     psd_loss, csd_loss = self.criterion_dsd(feat_s_list, feat_t_list)
+            #     psd_loss = self.args.lambda_psd * psd_loss
+            #     csd_loss = self.args.lambda_csd * csd_loss
+
+            # losses = task_loss + kd_loss + adv_G_loss + \
+            #             skd_loss + cwd_fea_loss + cwd_logit_loss +\
+            #             ifv_loss + at_loss + fitnet_loss +\
+            #             psd_loss + csd_loss 
+            # D_losses = adv_D_loss
+
+            losses = kd_loss
             lr = self.adjust_lr(base_lr=args.lr, iter=iteration-1, max_iter=args.max_iterations, power=0.9)
             self.optimizer.zero_grad()
             losses.backward()
             self.optimizer.step()
 
-            self.D_optimizer.zero_grad()
-            D_losses.backward()
-            self.D_optimizer.step()
+            # self.D_optimizer.zero_grad()
+            # D_losses.backward()
+            # self.D_optimizer.step()
 
             task_loss_reduced = self.reduce_mean_tensor(task_loss)
             kd_loss_reduced = self.reduce_mean_tensor(kd_loss)
-            adv_G_loss_reduced = self.reduce_mean_tensor(adv_G_loss)
-            skd_loss_reduced = self.reduce_mean_tensor(skd_loss)
-            cwd_fea_loss_reduced = self.reduce_mean_tensor(cwd_fea_loss)
-            cwd_logit_loss_reduced = self.reduce_mean_tensor(cwd_logit_loss)
-            ifv_loss_reduced = self.reduce_mean_tensor(ifv_loss)
-            at_loss_reduced = self.reduce_mean_tensor(at_loss)
-            fitnet_loss_reduced = self.reduce_mean_tensor(fitnet_loss)
-            psd_loss_reduced = self.reduce_mean_tensor(psd_loss)
-            csd_loss_reduced = self.reduce_mean_tensor(csd_loss)
+            # adv_G_loss_reduced = self.reduce_mean_tensor(adv_G_loss)
+            # skd_loss_reduced = self.reduce_mean_tensor(skd_loss)
+            # cwd_fea_loss_reduced = self.reduce_mean_tensor(cwd_fea_loss)
+            # cwd_logit_loss_reduced = self.reduce_mean_tensor(cwd_logit_loss)
+            # ifv_loss_reduced = self.reduce_mean_tensor(ifv_loss)
+            # at_loss_reduced = self.reduce_mean_tensor(at_loss)
+            # fitnet_loss_reduced = self.reduce_mean_tensor(fitnet_loss)
+            # psd_loss_reduced = self.reduce_mean_tensor(psd_loss)
+            # csd_loss_reduced = self.reduce_mean_tensor(csd_loss)
             
             
-            D_losses_reduced = self.reduce_mean_tensor(D_losses)
+            # D_losses_reduced = self.reduce_mean_tensor(D_losses)
             eta_seconds = ((time.time() - start_time) / iteration) * (args.max_iterations - iteration)
             eta_string = str(datetime.timedelta(seconds=int(eta_seconds)))
 
             if iteration % log_per_iters == 0 and save_to_disk:
+                # logger.info(
+                    # "Iters: {:d}/{:d} || Lr: {:.6f} || Task Loss: {:.4f} || KD Loss: {:.4f}" \
+                    # "|| Adv_G Loss: {:.4f} || Adv_D Loss: {:.4f}" \
+                    # "|| skd_loss: {:.4f} || cwd_fea_loss: {:.4f} || cwd_logit_loss: {:.4f} " \
+                    #     "|| ifv_loss: {:.4f} || at_loss: {:.4f} || fitnet_loss: {:.4f} " \
+                    #     "|| psd_loss: {:.4f} || csd_loss: {:.4f} ||" \
+                    #     "|| Cost Time: {} || Estimated Time: {}".format(
+                    #     iteration, args.max_iterations, self.optimizer.param_groups[0]['lr'], 
+                    #     task_loss_reduced.item(),
+                    #     kd_loss_reduced.item(), 
+                    #     adv_G_loss_reduced.item(),
+                    #     D_losses_reduced.item(), 
+                    #     skd_loss_reduced.item(),
+                    #     cwd_fea_loss_reduced.item(),
+                    #     cwd_logit_loss_reduced.item(),
+                    #     ifv_loss_reduced.item(),
+                    #     at_loss_reduced.item(),
+                    #     fitnet_loss_reduced.item(),
+                    #     psd_loss_reduced.item(),
+                    #     csd_loss_reduced.item(),
+                    #     str(datetime.timedelta(seconds=int(time.time() - start_time))), 
+                    #     eta_string))
                 logger.info(
                     "Iters: {:d}/{:d} || Lr: {:.6f} || Task Loss: {:.4f} || KD Loss: {:.4f}" \
-                    "|| Adv_G Loss: {:.4f} || Adv_D Loss: {:.4f}" \
-                    "|| skd_loss: {:.4f} || cwd_fea_loss: {:.4f} || cwd_logit_loss: {:.4f} " \
-                        "|| ifv_loss: {:.4f} || at_loss: {:.4f} || fitnet_loss: {:.4f} " \
-                        "|| psd_loss: {:.4f} || csd_loss: {:.4f} ||" \
                         "|| Cost Time: {} || Estimated Time: {}".format(
                         iteration, args.max_iterations, self.optimizer.param_groups[0]['lr'], 
                         task_loss_reduced.item(),
                         kd_loss_reduced.item(), 
-                        adv_G_loss_reduced.item(),
-                        D_losses_reduced.item(), 
-                        skd_loss_reduced.item(),
-                        cwd_fea_loss_reduced.item(),
-                        cwd_logit_loss_reduced.item(),
-                        ifv_loss_reduced.item(),
-                        at_loss_reduced.item(),
-                        fitnet_loss_reduced.item(),
-                        psd_loss_reduced.item(),
-                        csd_loss_reduced.item(),
                         str(datetime.timedelta(seconds=int(time.time() - start_time))), 
                         eta_string))
-
+                
             if iteration % save_per_iters == 0 and save_to_disk:
-                save_checkpoint(self.s_model, self.args, is_best=False)
+                save_checkpoint(SAVE_PATH, self.s_model, "b0", "cityscapes", iteration, args.distributed, is_best=False)
 
             if not self.args.skip_val and iteration % val_per_iters == 0:
                 self.validation()
                 self.s_model.train()
 
-        save_checkpoint(self.s_model, self.args, is_best=False)
+        # Saving final model with max ites
+        save_checkpoint(SAVE_PATH, self.s_model, "b0", "cityscapes", args.max_iterations + 1, args.distributed, is_best=False)
         total_training_time = time.time() - start_time
         total_training_str = str(datetime.timedelta(seconds=total_training_time))
         logger.info(
@@ -477,7 +510,7 @@ class Trainer(object):
             is_best = True
             self.best_pred = new_pred
         if (args.distributed is not True) or (args.distributed and args.local_rank == 0):
-            save_checkpoint(self.s_model, self.args, is_best)
+            save_checkpoint(SAVE_PATH, self.s_model, "b0", "cityscapes", args.max_iterations + 1, args.distributed, is_best=False)
         synchronize()
 
 
@@ -488,21 +521,21 @@ def save_npy(array, name):
         np.save(os.path.join(directory, name), array)
 
 
-def save_checkpoint(model, args, is_best=False):
+def save_checkpoint(save_dir, model, model_name, dataset, iteration, distributed, is_best=False):
     """Save Checkpoint"""
-    directory = os.path.expanduser(args.save_dir)
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    filename = 'kd_{}_{}_{}.pth'.format(args.student_model, args.student_backbone, args.dataset)
-    filename = os.path.join(directory, filename)
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    filename = 'kd_{}_{}_{}.pth'.format(model_name, dataset, iteration)
+    filename = os.path.join(save_dir, filename)
 
-    if args.distributed:
+    if distributed:
         model = model.module
     
     torch.save(model.state_dict(), filename)
+
     if is_best:
-        best_filename = 'kd_{}_{}_{}_best_model.pth'.format(args.student_model, args.student_backbone, args.dataset)
-        best_filename = os.path.join(directory, best_filename)
+        best_filename = 'kd_{}_{}_{}_best_model.pth'.format(model_name, dataset, iteration)
+        best_filename = os.path.join(save_dir, best_filename)
         shutil.copyfile(filename, best_filename)
 
 
