@@ -11,5 +11,7 @@ class SegCrossEntropyLoss(nn.Module):
 
     def forward(self, inputs, targets):
         B, H, W = targets.size()
-        inputs = F.interpolate(inputs, (H, W), mode='bilinear', align_corners=True)
+        # print(inputs.size(), " INPUTS")
+        #  print(targets.size()," OUTPUTS")
+        # inputs = F.interpolate(inputs, (H, W), mode='bilinear', align_corners=True)
         return self.task_loss(inputs, targets)
