@@ -5,6 +5,7 @@
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:2            # And two GPU
 #SBATCH --cpus-per-task=8            # Two cores per task
+#SBATCH --job-name=EffViT_KD
 source /home/aaryang/anaconda3/bin/activate
 conda activate cirkd
 
@@ -16,8 +17,12 @@ python3 -m torch.distributed.launch --nproc_per_node=2 \
     train_kd.py \
     --lambda-kd 1.0 \
     --data /share/datasets/Cityscapes/ \
-    --save-dir /home/aaryang/experiments/CIRKD/checkpoints/kd_l1_b0_cross_kld/ \
-    --log-dir /home/aaryang/experiments/CIRKD/logs/kd_l1_b0_cross_kld/ \
+    --save-dir /home/aaryang/experiments/CIRKD/checkpoints/kd_l1_b0_cross_kld_cityscapes/ \
+    --log-dir /home/aaryang/experiments/CIRKD/logs/ \
+    --teacher_model l1 \
+    --student_model b0 \
+    --teacher_weights_path  \
+    --student_weights_path  \
     --batch-size 16 \
     --max-iterations 20000 \
     --save-per-iters 2000

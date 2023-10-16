@@ -1,3 +1,4 @@
+from email.policy import default
 from efficientvit.efficientvit.models.utils import resize
 from efficientvit.efficientvit.seg_model_zoo import create_seg_model
 from dataset.coco_stuff_164k import CocoStuff164kTrainSet, CocoStuff164kValSet
@@ -40,16 +41,26 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='Semantic Segmentation Training With Pytorch')
     # model and dataset
-    parser.add_argument('--teacher-model', type=str, default='deeplabv3',
+    # parser.add_argument('--teacher-model', type=str, default='deeplabv3',
+    #                     help='model name')
+    # parser.add_argument('--student-model', type=str, default='deeplabv3',
+    #                     help='model name')
+    # parser.add_argument('--student-backbone', type=str, default='resnet18',
+    #                     help='backbone name')
+    # parser.add_argument('--teacher-backbone', type=str, default='resnet101',
+    #                     help='backbone name')
+    # parser.add_argument('--dataset', type=str, default='citys',
+    #                     help='dataset name')
+    parser.add_argument('--teacher_model', type=str, default='l1',
                         help='model name')
-    parser.add_argument('--student-model', type=str, default='deeplabv3',
+    parser.add_argument('--student_model', type=str, default='b0',
                         help='model name')
-    parser.add_argument('--student-backbone', type=str, default='resnet18',
-                        help='backbone name')
-    parser.add_argument('--teacher-backbone', type=str, default='resnet101',
-                        help='backbone name')
-    parser.add_argument('--dataset', type=str, default='citys',
+    parser.add_argument('--dataset', type=str, default='cityscapes',
                         help='dataset name')
+    parser.add_argument('--teacher_weights_path', type=str, default='teacher_weights',
+                        help='dataset name')
+    parser.add_argument('--student_weights_path', type=str, default ='student_weights',
+                         help ='')
     parser.add_argument('--data', type=str, default='./dataset/cityscapes/',
                         help='dataset directory')
     parser.add_argument('--crop-size', type=int, default=[512, 1024], nargs='+',
@@ -58,7 +69,6 @@ def parse_args():
                         metavar='N', help='dataloader threads')
     parser.add_argument('--ignore-label', type=int, default=-1, metavar='N',
                         help='ignore label')
-
     # training hyper params
     parser.add_argument('--aux', action='store_true', default=False,
                         help='Auxiliary loss')
@@ -79,26 +89,26 @@ def parse_args():
                         default=1.0, help="logits KD temperature")
     parser.add_argument("--lambda-kd", type=float,
                         default=0., help="lambda_kd")
-    parser.add_argument("--lambda-adv", type=float,
-                        default=0., help="lambda adversarial loss")
-    parser.add_argument("--lambda-d", type=float, default=0.,
-                        help="lambda discriminator loss")
-    parser.add_argument("--lambda-skd", type=float,
-                        default=0., help="lambda skd")
-    parser.add_argument("--lambda-cwd-fea", type=float,
-                        default=0., help="lambda cwd feature")
-    parser.add_argument("--lambda-cwd-logit", type=float,
-                        default=0., help="lambda cwd logit")
-    parser.add_argument("--lambda-ifv", type=float,
-                        default=0., help="lambda ifvd")
-    parser.add_argument("--lambda-fitnet", type=float,
-                        default=0., help="lambda fitnet")
-    parser.add_argument("--lambda-at", type=float, default=0.,
-                        help="lambda attention transfer")
-    parser.add_argument("--lambda-psd", type=float,
-                        default=0., help="lambda pixel similarity KD")
-    parser.add_argument("--lambda-csd", type=float, default=0.,
-                        help="lambda category similarity KD")
+    # parser.add_argument("--lambda-adv", type=float,
+    #                     default=0., help="lambda adversarial loss")
+    # parser.add_argument("--lambda-d", type=float, default=0.,
+    #                     help="lambda discriminator loss")
+    # parser.add_argument("--lambda-skd", type=float,
+    #                     default=0., help="lambda skd")
+    # parser.add_argument("--lambda-cwd-fea", type=float,
+    #                     default=0., help="lambda cwd feature")
+    # parser.add_argument("--lambda-cwd-logit", type=float,
+    #                     default=0., help="lambda cwd logit")
+    # parser.add_argument("--lambda-ifv", type=float,
+    #                     default=0., help="lambda ifvd")
+    # parser.add_argument("--lambda-fitnet", type=float,
+    #                     default=0., help="lambda fitnet")
+    # parser.add_argument("--lambda-at", type=float, default=0.,
+    #                     help="lambda attention transfer")
+    # parser.add_argument("--lambda-psd", type=float,
+    #                     default=0., help="lambda pixel similarity KD")
+    # parser.add_argument("--lambda-csd", type=float, default=0.,
+    #                     help="lambda category similarity KD")
 
     # cuda setting
     parser.add_argument('--gpu-id', type=str, default='0')
@@ -120,14 +130,14 @@ def parse_args():
                         help='per iters to save')
     parser.add_argument('--val-per-iters', type=int, default=800,
                         help='per iters to val')
-    parser.add_argument('--teacher-pretrained-base', type=str, default='None',
-                        help='pretrained backbone')
-    parser.add_argument('--teacher-pretrained', type=str, default='None',
-                        help='pretrained seg model')
-    parser.add_argument('--student-pretrained-base', type=str, default='None',
-                        help='pretrained backbone')
-    parser.add_argument('--student-pretrained', type=str, default='None',
-                        help='pretrained seg model')
+    # parser.add_argument('--teacher-pretrained-base', type=str, default='None',
+    #                     help='pretrained backbone')
+    # parser.add_argument('--teacher-pretrained', type=str, default='None',
+    #                     help='pretrained seg model')
+    # parser.add_argument('--student-pretrained-base', type=str, default='None',
+    #                     help='pretrained backbone')
+    # parser.add_argument('--student-pretrained', type=str, default='None',
+    #                     help='pretrained seg model')
 
     # evaluation only
     parser.add_argument('--val-epoch', type=int, default=1,
@@ -144,12 +154,12 @@ def parse_args():
         if not os.path.exists(args.save_dir):
             os.makedirs(args.save_dir)
 
-    if args.student_backbone.startswith('resnet'):
-        args.aux = True
-    elif args.student_backbone.startswith('mobile'):
-        args.aux = False
-    else:
-        raise ValueError('no such network')
+    # if args.student_backbone.startswith('resnet'):
+    #     args.aux = True
+    # elif args.student_backbone.startswith('mobile'):
+    #     args.aux = False
+    # else:
+    #     raise ValueError('no such network')
 
     return args
 
@@ -232,9 +242,15 @@ class Trainer(object):
         BatchNorm2d = nn.SyncBatchNorm if args.distributed else nn.BatchNorm2d
 
         # Pre-decided model, dataset and weights path --> modify to accept new  arguments later
-        self.t_model = create_seg_model("l1", "cityscapes", pretrained=True,
-                                        weight_url="/home/aaryang/experiments/CIRKD/model_weights/l1.pt")
-        self.s_model = create_seg_model("b0", "cityscapes", pretrained=False)
+
+        # Teacher --> accept path
+        # Student --> if path --> load pre-trained else load non-trained
+        self.t_model = create_seg_model(args.teacher_model, args.dataset, pretrained=True,
+                                        weight_url=args.teacher_weights_path)
+        if args.student_weights_path :
+            self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = True, weight_url=args.student_weights_path)
+        else :
+            self.s_model = create_seg_model(args.student_model, args.dataset, pre_trained = False)
 
         # All parameters of parent must be set with false
         for param in self.t_model.parameters():
@@ -593,8 +609,13 @@ if __name__ == '__main__':
             backend="nccl", init_method="env://")
         synchronize()
 
-    logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='{}_{}_{}_log.txt'.format(
-        args.student_model, args.teacher_backbone, args.student_backbone, args.dataset))
+    if args.student_weights_path :    
+        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_pretrained_{}_{}_log.txt'.format(
+            args.teacher_model, args.student_model, args.dataset))
+    else :
+        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_{}_{}_log.txt'.format(
+            args.teacher_model, args.student_model, args.dataset))
+        
     logger.info("Using {} GPUs".format(num_gpus))
     logger.info(args)
 
