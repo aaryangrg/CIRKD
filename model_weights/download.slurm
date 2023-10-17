@@ -5,15 +5,11 @@
 #SBATCH --partition=normal
 #SBATCH --cpus-per-task=1
 
-# Set the paths where you want to save and unzip the downloaded files
-# SAVE_PATH="/home/aaryang/experiments/efficientvit/assets/checkpoints/seg/cityscapes/b0.pt"
-URL_EFFICIENT_B0="https://drive.google.com/u/0/uc?id=1iiy-LHpGIutXbPV-tJThAtz6jAgNcuxX&export=download"
-# Create the save directory if it doesn't exist
-# mkdir -p $SAVE_PATH
+URL_EFFICIENT_B0_CITYSCAPES="https://drive.google.com/u/0/uc?id=1Ix1Dh3xlpaf0Wzh01Xmo-hAYkoXt1EAD&export=download"
+URL_EFFICIENT_B1_ADE20K="https://drive.google.com/u/0/uc?id=13YNtEJ-mRnAhu0fIs2EnAP-3TmSneRAC&export=download"
+URL_EFFICIENT_L1_ADE20K="https://drive.google.com/u/0/uc?id=1ErosNnztXT3ncrppWWPEMp5pag5WE-Vy&export=download"
 
-# Use wget to download the dataset files
-gdown $URL_EFFICIENT_B0
+gdown $URL_EFFICIENT_B0_CITYSCAPES
+gdown $URL_EFFICIENT_B1_ADE20K
+gdown $URL_EFFICIENT_L1_ADE20K
 
-# Unzip the downloaded files in the same directory
-
-echo "Dataset downloaded and unzipped successfully to $SAVE_PATH"

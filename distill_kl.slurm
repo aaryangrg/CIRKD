@@ -5,7 +5,7 @@
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:2            # And two GPU
 #SBATCH --cpus-per-task=8            # Two cores per task
-#SBATCH --job-name=EffViT_KD
+#SBATCH --job-name=EffViT_KD_full
 source /home/aaryang/anaconda3/bin/activate
 conda activate cirkd
 
