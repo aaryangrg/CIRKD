@@ -2,3 +2,4 @@
 checkpoints/*
 logs/*
 model_weights/*
+outs/*

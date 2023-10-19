@@ -58,9 +58,9 @@ def parse_args():
     parser.add_argument('--dataset', type=str, default='cityscapes',
                         help='dataset name')
     parser.add_argument('--teacher_weights_path', type=str, default='teacher_weights',
-                        help='dataset name')
-    parser.add_argument('--student_weights_path', type=str, default ='student_weights',
-                         help ='')
+                        help='teacher weights')
+    parser.add_argument('--student_weights_path', type=str, default =None,
+                         help ='student weights')
     parser.add_argument('--data', type=str, default='./dataset/cityscapes/',
                         help='dataset directory')
     parser.add_argument('--crop-size', type=int, default=[512, 1024], nargs='+',
@@ -171,7 +171,7 @@ class Trainer(object):
         self.num_gpus = int(
             os.environ["WORLD_SIZE"]) if "WORLD_SIZE" in os.environ else 1
 
-        if args.dataset == 'citys':
+        if args.dataset == 'cityscapes':
             train_dataset = CSTrainValSet(args.data,
                                           list_path='./dataset/list/cityscapes/train.lst',
                                           max_iters=args.max_iterations*args.batch_size,
@@ -250,7 +250,7 @@ class Trainer(object):
         if args.student_weights_path :
             self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = True, weight_url=args.student_weights_path)
         else :
-            self.s_model = create_seg_model(args.student_model, args.dataset, pre_trained = False)
+            self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = False)
 
         # All parameters of parent must be set with false
         for param in self.t_model.parameters():
@@ -345,7 +345,8 @@ class Trainer(object):
 
     def reduce_mean_tensor(self, tensor):
         rt = tensor.clone()
-        dist.all_reduce(rt, op=dist.ReduceOp.SUM)
+        if self.args.distributed :
+            dist.all_reduce(rt, op=dist.ReduceOp.SUM)
         rt /= self.num_gpus
         return rt
 

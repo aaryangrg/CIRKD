@@ -1,6 +1,10 @@
 Downloading...
 From (uriginal): https://drive.google.com/u/0/uc?id=1iiy-LHpGIutXbPV-tJThAtz6jAgNcuxX&export=download
-From (redirected): https://drive.google.com/uc?id=1iiy-LHpGIutXbPV-tJThAtz6jAgNcuxX&export=download&confirm=t&uuid=87b49e8a-ad2a-41e8-95f9-9b6731f7167e
+From (redirected): https://drive.google.com/uc?id=1iiy-LHpGIutXbPV-tJThAtz6jAgNcuxX&export=download&confirm=t&uuid=0f8ca545-60b7-40d3-bee1-4ba97a7e1a37
 To: /home/aaryang/experiments/CIRKD/model_weights/l1.pt
-  0%|          | 0.00/161M [00:00<?, ?B/s]  5%|4         | 7.34M/161M [00:00<00:02, 69.3MB/s]  9%|9         | 14.7M/161M [00:00<00:02, 53.3MB/s] 14%|#3        | 22.0M/161M [00:00<00:02, 59.6MB/s] 18%|#7        | 28.3M/161M [00:00<00:02, 59.9MB/s] 21%|##1       | 34.6M/161M [00:00<00:02, 50.6MB/s] 27%|##7       | 44.0M/161M [00:00<00:01, 62.1MB/s] 33%|###2      | 53.0M/161M [00:00<00:01, 68.9MB/s] 37%|###7      | 60.3M/161M [00:00<00:01, 65.1MB/s] 42%|####1     | 67.6M/161M [00:01<00:01, 66.3MB/s] 49%|####8     | 78.6M/161M [00:01<00:01, 78.1MB/s] 54%|#####3    | 87.0M/161M [00:01<00:00, 74.8MB/s] 59%|#####8    | 94.9M/161M [00:01<00:00, 66.9MB/s] 66%|######5   | 106M/161M [00:01<00:00, 77.9MB/s]  73%|#######2  | 117M/161M [00:01<00:00, 86.3MB/s] 78%|#######8  | 126M/161M [00:01<00:00, 73.2MB/s] 86%|########5 | 138M/161M [00:01<00:00, 83.1MB/s] 92%|#########2| 149M/161M [00:02<00:00, 90.0MB/s] 99%|#########9| 160M/161M [00:02<00:00, 95.4MB/s]100%|##########| 161M/161M [00:02<00:00, 75.1MB/s]
-Dataset downloaded and unzipped successfully to 
+  0%|          | 0.00/161M [00:00<?, ?B/s]  5%|4         | 7.34M/161M [00:00<00:02, 70.3MB/s]  9%|9         | 14.7M/161M [00:00<00:02, 61.6MB/s] 13%|#3        | 21.0M/161M [00:00<00:04, 29.3MB/s] 18%|#8        | 29.4M/161M [00:00<00:03, 40.8MB/s] 23%|##2       | 36.7M/161M [00:00<00:02, 48.2MB/s] 28%|##7       | 45.1M/161M [00:00<00:02, 56.9MB/s] 35%|###4      | 56.1M/161M [00:01<00:01, 70.4MB/s] 40%|####      | 64.5M/161M [00:01<00:01, 69.1MB/s] 46%|####5     | 73.9M/161M [00:01<00:01, 75.4MB/s] 53%|#####3    | 85.5M/161M [00:01<00:00, 85.7MB/s] 60%|#####9    | 96.5M/161M [00:01<00:00, 92.2MB/s] 67%|######6   | 107M/161M [00:01<00:00, 97.0MB/s]  73%|#######3  | 118M/161M [00:01<00:00, 100MB/s]  81%|########  | 130M/161M [00:01<00:00, 104MB/s] 87%|########7 | 141M/161M [00:01<00:00, 106MB/s] 94%|#########4| 152M/161M [00:02<00:00, 84.7MB/s]100%|##########| 161M/161M [00:02<00:00, 75.8MB/s]
+Downloading...
+From: https://drive.google.com/u/0/uc?id=1Ix1Dh3xlpaf0Wzh01Xmo-hAYkoXt1EAD&export=download
+To: /home/aaryang/experiments/CIRKD/model_weights/b0.pt
+  0%|          | 0.00/2.92M [00:00<?, ?B/s]100%|##########| 2.92M/2.92M [00:00<00:00, 38.9MB/s]
+Model checkpoints downloaded

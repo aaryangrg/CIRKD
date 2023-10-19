@@ -1,0 +1,123 @@
+CUDA_VISIBLE_DEVICES=0,1
+Tue Oct 17 00:15:39 2023       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.104.12             Driver Version: 535.104.12   CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA TITAN Xp                On  | 00000000:84:00.0 Off |                  N/A |
+| 23%   16C    P8               8W / 250W |      1MiB / 12288MiB |      0%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+|   1  NVIDIA TITAN Xp                On  | 00000000:85:00.0 Off |                  N/A |
+| 23%   16C    P8              10W / 250W |      1MiB / 12288MiB |      0%      Default |
+|                                         |                      |                  N/A |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|  No running processes found                                                           |
++---------------------------------------------------------------------------------------+
+/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/launch.py:181: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  warnings.warn(
+WARNING:torch.distributed.run:
+*****************************************
+Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+*****************************************
+[W socket.cpp:426] [c10d] The server socket has failed to bind to [::]:29500 (errno: 98 - Address already in use).
+[W socket.cpp:426] [c10d] The server socket has failed to bind to ?UNKNOWN? (errno: 98 - Address already in use).
+[E socket.cpp:462] [c10d] The server socket has failed to listen on any local network address.
+Traceback (most recent call last):
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/launch.py", line 196, in <module>
+    main()
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/launch.py", line 192, in main
+    launch(args)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/launch.py", line 177, in launch
+    run(args)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/run.py", line 785, in run
+    elastic_launch(
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 134, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 241, in launch_agent
+    result = agent.run()
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/elastic/metrics/api.py", line 129, in wrapper
+    result = f(*args, **kwargs)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 723, in run
+    result = self._invoke_run(role)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 858, in _invoke_run
+    self._initialize_workers(self._worker_group)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/elastic/metrics/api.py", line 129, in wrapper
+    result = f(*args, **kwargs)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 692, in _initialize_workers
+    self._rendezvous(worker_group)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/elastic/metrics/api.py", line 129, in wrapper
+    result = f(*args, **kwargs)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/elastic/agent/server/api.py", line 546, in _rendezvous
+    store, group_rank, group_world_size = spec.rdzv_handler.next_rendezvous()
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/elastic/rendezvous/static_tcp_rendezvous.py", line 55, in next_rendezvous
+    self._store = TCPStore(  # type: ignore[call-arg]
+RuntimeError: The server socket has failed to listen on any local network address. The server socket has failed to bind to [::]:29500 (errno: 98 - Address already in use). The server socket has failed to bind to ?UNKNOWN? (errno: 98 - Address already in use).
+[E ProcessGroupNCCL.cpp:828] [Rank 1] Watchdog caught collective operation timeout: WorkNCCL(SeqNum=1, OpType=ALLREDUCE, Timeout(ms)=1800000) ran for 1801501 milliseconds before timing out.
+[E ProcessGroupNCCL.cpp:828] [Rank 0] Watchdog caught collective operation timeout: WorkNCCL(SeqNum=1, OpType=ALLREDUCE, Timeout(ms)=1800000) ran for 1801503 milliseconds before timing out.
+2023-10-17 00:37:57,247 semantic_segmentation INFO: Using 2 GPUs
+2023-10-17 00:37:57,247 semantic_segmentation INFO: Namespace(teacher_model='l1', student_model='b0', dataset='cityscapes', teacher_weights_path='/home/aaryang/experiments/CIRKD/model_weights/l1_cityscapes.pt', student_weights_path='student_weights', data='/home/c3-0/datasets/Cityscapes/', crop_size=[512, 1024], workers=8, ignore_label=-1, aux=False, batch_size=16, start_epoch=0, max_iterations=20000, lr=0.02, momentum=0.9, weight_decay=0.0001, kd_temperature=1.0, lambda_kd=1.0, gpu_id='0', no_cuda=False, local_rank=0, resume=None, save_dir='/home/aaryang/experiments/CIRKD/checkpoints/kd_l1_b0_cross_kld_cityscapes/', save_epoch=10, log_dir='/home/aaryang/experiments/CIRKD/logs/', log_iter=10, save_per_iters=2000, val_per_iters=800, val_epoch=1, skip_val=False, num_gpus=2, distributed=True, device='cuda')
+[E ProcessGroupNCCL.cpp:455] Some NCCL operations have failed or timed out. Due to the asynchronous nature of CUDA kernels, subsequent GPU operations might run on corrupted/incomplete data.
+[E ProcessGroupNCCL.cpp:460] To avoid data inconsistency, we are taking the entire process down.
+[E ProcessGroupNCCL.cpp:455] Some NCCL operations have failed or timed out. Due to the asynchronous nature of CUDA kernels, subsequent GPU operations might run on corrupted/incomplete data.
+[E ProcessGroupNCCL.cpp:460] To avoid data inconsistency, we are taking the entire process down.
+ERROR:torch.distributed.elastic.multiprocessing.api:failed (exitcode: -6) local_rank: 0 (pid: 31937) of binary: /home/aaryang/anaconda3/envs/cirkd/bin/python3
+Traceback (most recent call last):
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/launch.py", line 196, in <module>
+    main()
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/launch.py", line 192, in main
+    launch(args)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/launch.py", line 177, in launch
+    run(args)
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/run.py", line 785, in run
+    elastic_launch(
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 134, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/home/aaryang/anaconda3/envs/cirkd/lib/python3.10/site-packages/torch/distributed/launcher/api.py", line 250, in launch_agent
+    raise ChildFailedError(
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+======================================================
+train_kd.py FAILED
+------------------------------------------------------
+Failures:
+[1]:
+  time      : 2023-10-17_00:38:34
+  host      : c1-2.local
+  rank      : 1 (local_rank: 1)
+  exitcode  : -6 (pid: 31938)
+  error_file: <N/A>
+  traceback : Signal 6 (SIGABRT) received by PID 31938
+------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2023-10-17_00:38:34
+  host      : c1-2.local
+  rank      : 0 (local_rank: 0)
+  exitcode  : -6 (pid: 31937)
+  error_file: <N/A>
+  traceback : Signal 6 (SIGABRT) received by PID 31937
+======================================================
