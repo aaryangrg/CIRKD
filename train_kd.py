@@ -108,6 +108,8 @@ def parse_args():
                         help='skip validation during training')
     
     parser.add_argument('--val_path',type =str, default='/home/c3-0/datasets/Cityscapes/leftImg8bit/val')
+    parser.add_argument('--pretrained_student', type=bool, default=False)
+
     args = parser.parse_args()
 
     num_gpus = int(os.environ["WORLD_SIZE"]
@@ -187,8 +189,9 @@ class Trainer(object):
         # Student --> if path --> load pre-trained else load non-trained
         self.t_model = create_seg_model(args.teacher_model, args.dataset, pretrained=True,
                                         weight_url=args.teacher_weights_path)
-        if args.student_weights_path :
+        if args.pretrained_student == True:
             self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = True, weight_url=args.student_weights_path)
+            print("Pretrained student loaded")
         else :
             self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = False)
 
@@ -325,7 +328,7 @@ class Trainer(object):
             if not self.args.skip_val and iteration % val_per_iters == 0:
                 #self.validation()
                 #logger.info("RUNNING VALIDATION")
-                val_mIoU = validation_epoch(self.args, self.t_model)
+                val_mIoU = validation_epoch(self.args, self.s_model)
                 #logger.info("Validation mIoU :{} ".format(val_mIoU))
                 self.s_model.train()
 

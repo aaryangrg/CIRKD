@@ -27,4 +27,6 @@ python3 -m torch.distributed.launch --nproc_per_node=1 \
     --max-iterations 20000 \
     --save-per-iters 2000 \
     --dataset cityscapes \
-    --val-per-iters 50 
+    --val-per-iters 50  \
+    --pretrained_student True
+    
