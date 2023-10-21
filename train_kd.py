@@ -460,11 +460,11 @@ if __name__ == '__main__':
         synchronize()
 
     if args.student_weights_path :    
-        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_pretrained_{}_{}_log.txt'.format(
-            args.teacher_model, args.student_model, args.dataset))
+        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_pretrained_{}_{}_batch_{}_lr_{}_log.txt'.format(
+            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr))
     else :
-        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_{}_{}_log.txt'.format(
-            args.teacher_model, args.student_model, args.dataset))
+        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_{}_{}_batch_{}_lr_{}_log.txt'.format(
+            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr))
         
     logger.info("Using {} GPUs".format(num_gpus))
     logger.info(args)
