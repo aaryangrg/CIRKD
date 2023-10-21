@@ -69,7 +69,7 @@ def parse_args():
                         metavar='N', help='start epochs (default:0)')
     parser.add_argument('--max-iterations', type=int, default=40000, metavar='N',
                         help='number of epochs to train (default: 50)')
-    parser.add_argument('--lr', type=float, default=0.02, metavar='LR',
+    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
                         help='learning rate (default: 1e-4)')
     parser.add_argument('--momentum', type=float, default=0.9, metavar='M',
                         help='momentum (default: 0.9)')
@@ -228,7 +228,7 @@ class Trainer(object):
 
         # Change to Adam?
         self.optimizer = torch.optim.SGD(params_list.parameters(),
-                                         lr=args.lr
+                                         lr=args.lr,
                                          momentum=args.momentum,
                                          weight_decay=args.weight_decay)
 
@@ -275,6 +275,7 @@ class Trainer(object):
         for iteration, (images, targets, _) in enumerate(self.train_loader):
             if (not self.args.skip_val and iteration % val_per_iters == 0) or iteration == 0:
                 val_mIoU = validation_epoch(self.args, self.s_model)
+                logger.info("{} mIoU = {}".format(iteration,val_mIoU))
                 self.s_model.train()
                 
             iteration = iteration + 1
@@ -287,9 +288,9 @@ class Trainer(object):
 
             s_outputs = self.s_model(images)
 
-            print("Student Out shape : ", s_outputs.shape)
-            print("Teacher Output shape : ", t_outputs.shape)
-            print("Target Shape : ", targets.shape)
+            #print("Student Out shape : ", s_outputs.shape)
+            #print("Teacher Output shape : ", t_outputs.shape)
+            #print("Target Shape : ", targets.shape)
             if s_outputs.shape[-2:] != targets.shape[-2:]:
                 s_outputs = resize(s_outputs, size=targets.shape[-2:])
             if t_outputs.shape[-2:] != targets.shape[-2:]:
@@ -305,7 +306,7 @@ class Trainer(object):
                     self.criterion_kd(s_outputs, t_outputs)
 
 
-            losses = kd_loss + task_loss
+            losses = kd_loss
             lr = self.adjust_lr(base_lr=args.lr, iter=iteration-1,
                                 max_iter=args.max_iterations, power=0.9)
 
