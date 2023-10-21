@@ -1,4 +1,5 @@
 from email.policy import default
+from re import S
 from efficientvit.eval_seg_model import validation_epoch
 from efficientvit.efficientvit.models.utils import resize
 from efficientvit.efficientvit.seg_model_zoo import create_seg_model
@@ -227,7 +228,7 @@ class Trainer(object):
 
         # Change to Adam?
         self.optimizer = torch.optim.SGD(params_list.parameters(),
-                                         lr=args.lr,
+                                         lr=args.lr
                                          momentum=args.momentum,
                                          weight_decay=args.weight_decay)
 
@@ -285,6 +286,10 @@ class Trainer(object):
                 t_outputs = self.t_model(images)
 
             s_outputs = self.s_model(images)
+
+            print("Student Out shape : ", s_outputs.shape)
+            print("Teacher Output shape : ", t_outputs.shape)
+            print("Target Shape : ", targets.shape)
             if s_outputs.shape[-2:] != targets.shape[-2:]:
                 s_outputs = resize(s_outputs, size=targets.shape[-2:])
             if t_outputs.shape[-2:] != targets.shape[-2:]:
@@ -303,6 +308,7 @@ class Trainer(object):
             losses = kd_loss + task_loss
             lr = self.adjust_lr(base_lr=args.lr, iter=iteration-1,
                                 max_iter=args.max_iterations, power=0.9)
+
             self.optimizer.zero_grad()
             losses.backward()
             self.optimizer.step()
