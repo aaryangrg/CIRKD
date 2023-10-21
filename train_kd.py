@@ -1,5 +1,5 @@
 from email.policy import default
-from efficientvit.efficientvit.eval_seg_model import validation_epoch
+from efficientvit.eval_seg_model import validation_epoch
 from efficientvit.efficientvit.models.utils import resize
 from efficientvit.efficientvit.seg_model_zoo import create_seg_model
 from dataset.coco_stuff_164k import CocoStuff164kTrainSet, CocoStuff164kValSet
@@ -323,9 +323,10 @@ class Trainer(object):
                                 iteration, args.distributed, is_best=False)
 
             if not self.args.skip_val and iteration % val_per_iters == 0:
-                # self.validation()
-                val_mIoU = validation_epoch(self.args, self.s_model)
-                logger.info("Validation mIoU : ", val_mIoU)
+                #self.validation()
+                #logger.info("RUNNING VALIDATION")
+                val_mIoU = validation_epoch(self.args, self.t_model)
+                #logger.info("Validation mIoU :{} ".format(val_mIoU))
                 self.s_model.train()
 
         # Saving final model with max ites
