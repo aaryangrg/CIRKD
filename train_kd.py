@@ -185,15 +185,16 @@ class Trainer(object):
 
         # Pre-decided model, dataset and weights path --> modify to accept new  arguments later
 
-        # Teacher --> accept path
-        # Student --> if path --> load pre-trained else load non-trained
+        self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = True, weight_url=args.student_weights_path)
         self.t_model = create_seg_model(args.teacher_model, args.dataset, pretrained=True,
                                         weight_url=args.teacher_weights_path)
-        if args.pretrained_student == True:
-            self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = True, weight_url=args.student_weights_path)
-            print("Pretrained student loaded")
-        else :
-            self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = False)
+        # if args.pretrained_student == True:
+        #     self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = True, weight_url=args.student_weights_path)
+        #     print("Pretrained student loaded")
+        # else :
+        #     self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = False)
+
+       
 
         # All parameters of parent must be set with false
         for param in self.t_model.parameters():
@@ -325,7 +326,7 @@ class Trainer(object):
                 save_checkpoint(SAVE_PATH, self.s_model, "b0", "cityscapes",
                                 iteration, args.distributed, is_best=False)
 
-            if not self.args.skip_val and iteration % val_per_iters == 0:
+            if (not self.args.skip_val and iteration % val_per_iters == 0) or iteration == 1:
                 #self.validation()
                 #logger.info("RUNNING VALIDATION")
                 val_mIoU = validation_epoch(self.args, self.s_model)
