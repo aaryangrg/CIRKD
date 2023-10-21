@@ -329,7 +329,7 @@ class Trainer(object):
             if (not self.args.skip_val and iteration % val_per_iters == 0) or iteration == 1:
                 #self.validation()
                 #logger.info("RUNNING VALIDATION")
-                val_mIoU = validation_epoch(self.args, self.s_model)
+                val_mIoU = validation_epoch(self.args, self.t_model)
                 #logger.info("Validation mIoU :{} ".format(val_mIoU))
                 self.s_model.train()
 
