@@ -19,14 +19,14 @@ python3 -m torch.distributed.launch --nproc_per_node=1 \
     --data /home/c3-0/datasets/Cityscapes/ \
     --save-dir /home/aaryang/experiments/CIRKD/checkpoints/kd_l1_b0_pretrained_cross_kld_cityscapes_normalized/ \
     --log-dir /home/aaryang/experiments/CIRKD/logs/pretrained/normalized/ \
-    --teacher_model l1 \
-    --student_model b0 \
-    --teacher_weights_path /home/aaryang/experiments/CIRKD/model_weights/l1.pt \
-    --student_weights_path /home/aaryang/experiments/CIRKD/model_weights/b0.pt \
+    --teacher-model l1 \
+    --student-model b0 \
+    --teacher-weights-path /home/aaryang/experiments/CIRKD/model_weights/l1.pt \
+    --student-weights-path /home/aaryang/experiments/CIRKD/model_weights/b0.pt \
     --batch-size 8 \
     --max-iterations 20000 \
     --save-per-iters 2000 \
     --dataset cityscapes \
     --val-per-iters 50  \
-    --pretrained_student True
+    --pretrained-student True
     

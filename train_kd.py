@@ -41,15 +41,15 @@ SAVE_PATH = "/home/aaryang/experiments/CIRKD/checkpoints/"
 def parse_args():
     parser = argparse.ArgumentParser(
         description='Semantic Segmentation Training With Pytorch')
-    parser.add_argument('--teacher_model', type=str, default='l1',
+    parser.add_argument('--teacher-model', type=str, default='l1',
                         help='model name')
-    parser.add_argument('--student_model', type=str, default='b0',
+    parser.add_argument('--student-model', type=str, default='b0',
                         help='model name')
     parser.add_argument('--dataset', type=str, default='cityscapes',
                         help='dataset name')
-    parser.add_argument('--teacher_weights_path', type=str, default='teacher_weights',
+    parser.add_argument('--teacher-weights-path', type=str, default='teacher_weights',
                         help='teacher weights')
-    parser.add_argument('--student_weights_path', type=str, default =None,
+    parser.add_argument('--student-weights-path', type=str, default =None,
                          help ='student weights')
     parser.add_argument('--data', type=str, default='./dataset/cityscapes/',
                         help='dataset directory')
@@ -107,8 +107,8 @@ def parse_args():
     parser.add_argument('--skip-val', action='store_true', default=False,
                         help='skip validation during training')
     
-    parser.add_argument('--val_path',type =str, default='/home/c3-0/datasets/Cityscapes/leftImg8bit/val')
-    parser.add_argument('--pretrained_student', type=bool, default=False)
+    parser.add_argument('--val-path',type =str, default='/home/c3-0/datasets/Cityscapes/leftImg8bit/val')
+    parser.add_argument('--pretrained-student', type=bool, default=False)
 
     args = parser.parse_args()
 
