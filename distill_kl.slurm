@@ -23,7 +23,7 @@ python3 -m torch.distributed.launch --nproc_per_node=1 \
     --student-model b0 \
     --teacher-weights-path /home/aaryang/experiments/CIRKD/model_weights/l1.pt \
     --student-weights-path /home/aaryang/experiments/CIRKD/model_weights/b0.pt \
-    --batch-size 8 \
+    --batch-size 2 \
     --max-iterations 20000 \
     --save-per-iters 2000 \
     --dataset cityscapes \

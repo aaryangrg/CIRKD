@@ -54,7 +54,7 @@ def parse_args():
                          help ='student weights')
     parser.add_argument('--data', type=str, default='./dataset/cityscapes/',
                         help='dataset directory')
-    parser.add_argument('--crop-size', type=int, default=[512, 1024], nargs='+',
+    parser.add_argument('--crop-size', type=int, default=[1024, 2048], nargs='+',
                         help='crop image size: [height, width]')
     parser.add_argument('--workers', '-j', type=int, default=8,
                         metavar='N', help='dataloader threads')
