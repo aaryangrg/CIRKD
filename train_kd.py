@@ -270,7 +270,12 @@ class Trainer(object):
             args.max_iterations))
 
         self.s_model.train()
+
         for iteration, (images, targets, _) in enumerate(self.train_loader):
+            if (not self.args.skip_val and iteration % val_per_iters == 0) or iteration == 0:
+                val_mIoU = validation_epoch(self.args, self.s_model)
+                self.s_model.train()
+                
             iteration = iteration + 1
 
             images = images.to(self.device)
@@ -326,12 +331,9 @@ class Trainer(object):
                 save_checkpoint(SAVE_PATH, self.s_model, "b0", "cityscapes",
                                 iteration, args.distributed, is_best=False)
 
-            if (not self.args.skip_val and iteration % val_per_iters == 0) or iteration == 1:
-                #self.validation()
-                #logger.info("RUNNING VALIDATION")
-                val_mIoU = validation_epoch(self.args, self.s_model)
-                #logger.info("Validation mIoU :{} ".format(val_mIoU))
-                self.s_model.train()
+            # if (not self.args.skip_val and iteration % val_per_iters == 0) or iteration == 1:
+            #     val_mIoU = validation_epoch(self.args, self.s_model)
+            #     self.s_model.train()
 
         # Saving final model with max ites
         save_checkpoint(SAVE_PATH, self.s_model, "b0", "cityscapes",
