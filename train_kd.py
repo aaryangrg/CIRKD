@@ -110,6 +110,7 @@ def parse_args():
     
     parser.add_argument('--val-path',type =str, default='/home/c3-0/datasets/Cityscapes/leftImg8bit/val')
     parser.add_argument('--pretrained-student', type=bool, default=False)
+    parser.add_argument('--lr-decay-iterations', type=int, default = 1)
 
     args = parser.parse_args()
 
@@ -244,7 +245,7 @@ class Trainer(object):
 
     # What are these 3 functions and where are they used?
     def adjust_lr(self, base_lr, iter, max_iter, power):
-        cur_lr = base_lr*((1-float(iter)/max_iter)**(power))
+        cur_lr = base_lr*((1-float(iter//args.lr_decay_iterations)/max_iter)**(power))
         for param_group in self.optimizer.param_groups:
             param_group['lr'] = cur_lr
 
@@ -460,11 +461,11 @@ if __name__ == '__main__':
         synchronize()
 
     if args.student_weights_path :    
-        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_pretrained_{}_{}_batch_{}_lr_{}_log.txt'.format(
-            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr))
+        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_pretrained_{}_{}_batch_{}_lr_{}_decay_{}_log.txt'.format(
+            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr, args.lr_decay_iterations))
     else :
-        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_{}_{}_batch_{}_lr_{}_log.txt'.format(
-            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr))
+        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_{}_{}_batch_{}_lr_{}_decay_{}_log.txt'.format(
+            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr, args.lr_decay_iterations))
         
     logger.info("Using {} GPUs".format(num_gpus))
     logger.info(args)
