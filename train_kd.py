@@ -112,6 +112,7 @@ def parse_args():
     parser.add_argument('--pretrained-student', type=bool, default=False)
     parser.add_argument('--lr-decay-iterations', type=int, default = 1)
     parser.add_argument('--task-lambda',type=float, default=0.25)
+    parser.add_argument('--irregular-decay', type=bool, default = False)
 
     args = parser.parse_args()
 
@@ -244,12 +245,26 @@ class Trainer(object):
         self.metric = SegmentationMetric(train_dataset.num_class)
         self.best_pred = 0.0
 
-    # What are these 3 functions and where are they used?
     def adjust_lr(self, base_lr, iter, max_iter, power):
-        cur_lr = base_lr*((1-float(iter//self.args.lr_decay_iterations)/max_iter)**(power))
-        for param_group in self.optimizer.param_groups:
-            param_group['lr'] = cur_lr
-
+        if self.args.irregular_decay :
+            if iter < 30000 :
+                cur_lr = base_lr*((1-float(iter//self.args.lr_decay_iterations)/30000)**(power))
+                for param_group in self.optimizer.param_groups:
+                    param_group['lr'] = cur_lr
+            elif 30000 <= iter < 35000 :
+                cur_lr = 0.000005*((1-float(iter-30000//self.args.lr_decay_iterations)/5000)**(power))
+                cur_lr = max(cur_lr, 0.0000025)
+                for param_group in self.optimizer.param_groups:
+                    param_group['lr'] = cur_lr
+            else :
+                cur_lr = 0.0000025*((1-float(iter-35000//self.args.lr_decay_iterations)/5000)**(power))
+                cur_lr = max(cur_lr, 0.000001)
+                for param_group in self.optimizer.param_groups:
+                    param_group['lr'] = cur_lr
+        else :
+            cur_lr = base_lr*((1-float(iter//self.args.lr_decay_iterations)/max_iter)**(power))
+            for param_group in self.optimizer.param_groups:
+                param_group['lr'] = cur_lr
         return cur_lr
 
     def reduce_tensor(self, tensor):
@@ -340,11 +355,8 @@ class Trainer(object):
                 save_checkpoint(SAVE_PATH, self.s_model, "b0", "cityscapes",
                                 iteration, args.distributed, is_best=False)
 
-
-            # if (not self.args.skip_val and iteration % val_per_iters == 0) or iteration == 1:
-            #     val_mIoU = validation_epoch(self.args, self.s_model)
-            #     self.s_model.train()
-
+        val_mIoU = validation_epoch(self.args, self.s_model)
+        logger.info("{} mIoU = {}".format(self.args.max_iterations,val_mIoU))
         # Saving final model with max ites
         save_checkpoint(SAVE_PATH, self.s_model, "b0", "cityscapes",
                         args.max_iterations + 1, args.distributed, is_best=False)
@@ -462,11 +474,11 @@ if __name__ == '__main__':
         synchronize()
 
     if args.student_weights_path :    
-        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_pretrained_{}_{}_batch_{}_lr_{}_decay_{}_task_lambda_{}_log.txt'.format(
-            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr, args.lr_decay_iterations, args.task_lambda))
+        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_pretrained_{}_{}_batch_{}_lr_{}_decay_{}_task_lambda_{}_iters_{}_log.txt'.format(
+            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr, args.lr_decay_iterations, args.task_lambda, args.max_iterations))
     else :
-        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_{}_{}_batch_{}_lr_{}_decay_{}_task_lambda_{}_log.txt'.format(
-            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr, args.lr_decay_iterations, args.task_lambda))
+        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_{}_{}_batch_{}_lr_{}_decay_{}_task_lambda_{}_iters_{}_log.txt'.format(
+            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr, args.lr_decay_iterations, args.task_lambda, args.max_iterations))
         
     logger.info("Using {} GPUs".format(num_gpus))
     logger.info(args)
