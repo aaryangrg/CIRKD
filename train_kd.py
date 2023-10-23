@@ -111,6 +111,7 @@ def parse_args():
     parser.add_argument('--val-path',type =str, default='/home/c3-0/datasets/Cityscapes/leftImg8bit/val')
     parser.add_argument('--pretrained-student', type=bool, default=False)
     parser.add_argument('--lr-decay-iterations', type=int, default = 1)
+    parser.add_argument('--task-lambda',type=float, default=0.25)
 
     args = parser.parse_args()
 
@@ -245,7 +246,7 @@ class Trainer(object):
 
     # What are these 3 functions and where are they used?
     def adjust_lr(self, base_lr, iter, max_iter, power):
-        cur_lr = base_lr*((1-float(iter//args.lr_decay_iterations)/max_iter)**(power))
+        cur_lr = base_lr*((1-float(iter//self.args.lr_decay_iterations)/max_iter)**(power))
         for param_group in self.optimizer.param_groups:
             param_group['lr'] = cur_lr
 
@@ -307,7 +308,7 @@ class Trainer(object):
                     self.criterion_kd(s_outputs, t_outputs)
 
 
-            losses = kd_loss
+            losses = kd_loss + args.task_lambda * task_loss
             lr = self.adjust_lr(base_lr=args.lr, iter=iteration-1,
                                 max_iter=args.max_iterations, power=0.9)
 
@@ -461,11 +462,11 @@ if __name__ == '__main__':
         synchronize()
 
     if args.student_weights_path :    
-        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_pretrained_{}_{}_batch_{}_lr_{}_decay_{}_log.txt'.format(
-            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr, args.lr_decay_iterations))
+        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_pretrained_{}_{}_batch_{}_lr_{}_decay_{}_task_lambda_{}_log.txt'.format(
+            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr, args.lr_decay_iterations, args.task_lambda))
     else :
-        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_{}_{}_batch_{}_lr_{}_decay_{}_log.txt'.format(
-            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr, args.lr_decay_iterations))
+        logger = setup_logger("semantic_segmentation", args.log_dir, get_rank(), filename='kd_{}_{}_{}_batch_{}_lr_{}_decay_{}_task_lambda_{}_log.txt'.format(
+            args.teacher_model, args.student_model, args.dataset,args.batch_size, args.lr, args.lr_decay_iterations, args.task_lambda))
         
     logger.info("Using {} GPUs".format(num_gpus))
     logger.info(args)

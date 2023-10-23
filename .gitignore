@@ -3,3 +3,9 @@ checkpoints/*
 logs/*
 model_weights/*
 outs/*
+graphs/*
+local_logs/*
+venv/*
+graphs
+local_logs
+venv
