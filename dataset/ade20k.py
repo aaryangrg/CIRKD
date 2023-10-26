@@ -61,13 +61,26 @@ class ADETrainSet(data.Dataset):
         image = cv2.imread(datafiles["img"], cv2.IMREAD_COLOR)
         label = cv2.imread(datafiles["label"], cv2.IMREAD_GRAYSCALE)
         
+
+        # BGR to RGB
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
         size = image.shape
 
         name = datafiles["name"]
         if self.is_scale:
             image, label = self.generate_scale_label(image, label)
         image = np.asarray(image, np.float32)
-        image = image - np.array([104.00698793, 116.66876762, 122.67891434])
+        
+        #Normalizing RGB
+        image = image / 255.0
+        # Subtracting mean and dividing by standard deviation
+        mean = np.array([0.485, 0.456, 0.406])
+        std = np.array([0.229, 0.224, 0.225])
+        image -= mean
+        image /= std
+        # image = image - np.array([104.00698793, 116.66876762, 122.67891434])
+
         img_h, img_w = label.shape
         pad_h = max(self.crop_h - img_h, 0)
         pad_w = max(self.crop_w - img_w, 0)
