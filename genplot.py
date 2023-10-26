@@ -139,15 +139,18 @@ def plot_combined(file_name) :
 
 
 file_list = [
-            "lr0001",
-             "decay200",
-             "decay500",
-             "decay1000",
-             "task_lambda",
-             "task_lambda_200",
-             "task_lambda_4000_iters",
-            "b2_basic",
-            "irregular_lr"
+            # "lr0001",
+            #  "decay200",
+            #  "decay500",
+            #  "decay1000",
+            #  "task_lambda",
+            #  "task_lambda_200",
+            #  "task_lambda_4000_iters",
+            #  "b2_basic",
+            #  "irregular_lr",
+            "b1_b0_025",
+            "b1_b0_50",
+            "b3_b0_25"
              ]
 
 for file in file_list :
@@ -167,4 +170,6 @@ for file in file_list :
 #scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/normalized/kd_b2_pretrained_b0_cityscapes_batch_6_lr_0.0001_decay_1_task_lambda_0.25_iters_35000_log.txt b2_basic.txt
 #scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/irregular/kd_l1_pretrained_b0_cityscapes_batch_8_lr_0.0001_decay_1_task_lambda_0.25_iters_40000_log.txt irregular_lr.txt
 
-
+#scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/normalized/kd_b1_pretrained_b0_cityscapes_batch_6_lr_0.0001_decay_1_task_lambda_0.25_iters_35000_log.txt b1_b0_025.txt
+#scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/normalized/kd_b1_pretrained_b0_cityscapes_batch_6_lr_0.0001_decay_1_task_lambda_0.5_iters_35000_log.txt  b1_b0_50.txt
+#scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/normalized/kd_b3_pretrained_b0_cityscapes_batch_8_lr_0.0001_decay_1_task_lambda_0.25_iters_35000_log.txt b3_b0_25.txt

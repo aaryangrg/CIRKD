@@ -113,6 +113,7 @@ def parse_args():
     parser.add_argument('--lr-decay-iterations', type=int, default = 1)
     parser.add_argument('--task-lambda',type=float, default=0.25)
     parser.add_argument('--irregular-decay', type=bool, default = False)
+    parser.add_argument('--lr-power', type = float, default = 0.9)
 
     args = parser.parse_args()
 
@@ -262,7 +263,7 @@ class Trainer(object):
                 for param_group in self.optimizer.param_groups:
                     param_group['lr'] = cur_lr
         else :
-            cur_lr = base_lr*((1-float(iter//self.args.lr_decay_iterations)/max_iter)**(power))
+            cur_lr = base_lr*((1-float(iter//self.args.lr_decay_iterations)/max_iter)**(self.args.lr_power))
             for param_group in self.optimizer.param_groups:
                 param_group['lr'] = cur_lr
         return cur_lr
