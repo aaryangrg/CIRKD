@@ -153,7 +153,14 @@ class ADEDataValSet(data.Dataset):
 
         name = osp.splitext(osp.basename(datafiles["img"]))[0]
         image = np.asarray(image, np.float32)
-        image = image - np.array([104.00698793, 116.66876762, 122.67891434])
+        # image = image - np.array([104.00698793, 116.66876762, 122.67891434])
+        #Normalizing RGB
+        image = image / 255.0
+        # Subtracting mean and dividing by standard deviation
+        mean = np.array([0.485, 0.456, 0.406])
+        std = np.array([0.229, 0.224, 0.225])
+        image -= mean
+        image /= std
         image = image.transpose((2, 0, 1))
         image = np.asarray(image, np.float32)
         label = np.asarray(label, np.float32)
