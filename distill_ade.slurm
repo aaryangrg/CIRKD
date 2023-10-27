@@ -33,6 +33,8 @@ python3 -m torch.distributed.launch --nproc_per_node=2 \
     --lr-decay-iterations 1  \
     --save-per-iters 10000 \
     --task-lambda 0.50 \
-    --val-path /home/c3-0/datasets/ade/ADEChallengeData2016/
+    --val-path /home/c3-0/datasets/ade/ADEChallengeData2016/ \
+    --dataset ade20k
+    
     
 
