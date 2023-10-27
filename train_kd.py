@@ -281,7 +281,7 @@ class Trainer(object):
 
         for iteration, (images, targets, _) in enumerate(self.train_loader):
             if (not self.args.skip_val and iteration % val_per_iters == 0) or iteration == 0:
-                if self.args.use_eff_val :
+                if self.args.dataset == "cityscapes" :
                     val_mIoU = validation_epoch(self.args, self.s_model)
                     logger.info("{} mIoU = {}".format(iteration,val_mIoU))
                     self.s_model.train()
