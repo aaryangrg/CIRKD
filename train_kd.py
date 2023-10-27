@@ -114,6 +114,7 @@ def parse_args():
     parser.add_argument('--task-lambda',type=float, default=0.25)
     parser.add_argument('--irregular-decay', type=bool, default = False)
     parser.add_argument('--lr-power', type = float, default = 0.9)
+    parser.add_argument('--use-eff-val', type=bool, default = True)
 
     args = parser.parse_args()
 
@@ -189,24 +190,13 @@ class Trainer(object):
         BatchNorm2d = nn.SyncBatchNorm if args.distributed else nn.BatchNorm2d
 
         # Pre-decided model, dataset and weights path --> modify to accept new  arguments later
-
         self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = True, weight_url=args.student_weights_path)
-        self.t_model = create_seg_model(args.teacher_model, args.dataset, pretrained=True,
-                                        weight_url=args.teacher_weights_path)
-        # if args.pretrained_student == True:
-        #     self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = True, weight_url=args.student_weights_path)
-        #     print("Pretrained student loaded")
-        # else :
-        #     self.s_model = create_seg_model(args.student_model, args.dataset, pretrained = False)
-
+        self.t_model = create_seg_model(args.teacher_model, args.dataset, pretrained=True, weight_url=args.teacher_weights_path)
        
 
         # All parameters of parent must be set with false
         for param in self.t_model.parameters():
             param.requires_grad = False
-
-        # for t_n, t_p in self.t_model.named_parameters():
-            # t_p.requires_grad = False
 
         # Set both to evaluation mode
         self.t_model.to("cuda")
@@ -235,7 +225,6 @@ class Trainer(object):
                                          lr=args.lr,
                                          momentum=args.momentum,
                                          weight_decay=args.weight_decay)
-
 
         if args.distributed:
             self.s_model = nn.parallel.DistributedDataParallel(self.s_model,
@@ -292,9 +281,13 @@ class Trainer(object):
 
         for iteration, (images, targets, _) in enumerate(self.train_loader):
             if (not self.args.skip_val and iteration % val_per_iters == 0) or iteration == 0:
-                val_mIoU = validation_epoch(self.args, self.s_model)
-                logger.info("{} mIoU = {}".format(iteration,val_mIoU))
-                self.s_model.train()
+                if self.args.use_eff_val :
+                    val_mIoU = validation_epoch(self.args, self.s_model)
+                    logger.info("{} mIoU = {}".format(iteration,val_mIoU))
+                    self.s_model.train()
+                else :
+                    self.validation()
+                    self.s_model.train()
                 
             iteration = iteration + 1
 
@@ -306,9 +299,6 @@ class Trainer(object):
 
             s_outputs = self.s_model(images)
 
-            #print("Student Out shape : ", s_outputs.shape)
-            #print("Teacher Output shape : ", t_outputs.shape)
-            #print("Target Shape : ", targets.shape)
             if s_outputs.shape[-2:] != targets.shape[-2:]:
                 s_outputs = resize(s_outputs, size=targets.shape[-2:])
             if t_outputs.shape[-2:] != targets.shape[-2:]:
@@ -422,7 +412,7 @@ class Trainer(object):
             is_best = True
             self.best_pred = new_pred
         if (args.distributed is not True) or (args.distributed and args.local_rank == 0):
-            save_checkpoint(SAVE_PATH, self.s_model, "b0", "cityscapes",
+            save_checkpoint(SAVE_PATH, self.s_model, args.student_model, args.dataset,
                             args.max_iterations + 1, args.distributed, is_best=False)
         synchronize()
 
