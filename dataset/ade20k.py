@@ -148,9 +148,10 @@ class ADEDataValSet(data.Dataset):
         datafiles = self.files[index]
         image = cv2.imread(datafiles["img"], cv2.IMREAD_COLOR)
         label = cv2.imread(datafiles["label"], cv2.IMREAD_GRAYSCALE)
-
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        
         size = image.shape
-
+        
         name = osp.splitext(osp.basename(datafiles["img"]))[0]
         image = np.asarray(image, np.float32)
         # image = image - np.array([104.00698793, 116.66876762, 122.67891434])

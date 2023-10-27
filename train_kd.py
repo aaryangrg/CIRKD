@@ -376,6 +376,7 @@ class Trainer(object):
             with torch.no_grad():
                 outputs = model(image)
 
+            
             if outputs.shape[-2:] != target.shape[-2:]:
                 outputs = resize(outputs, size=target.shape[-2:])
 
