@@ -112,7 +112,7 @@ class ADEDataValSet(data.Dataset):
         self.root = root
         self.ignore_label = ignore_label
         # self.mean_bgr = np.array([104.00698793, 116.66876762, 122.67891434])
-
+        self.crop_h, self.crop_w = 512, 512
         self.files = [] 
         
         img_folder = os.path.join(root, 'images/validation')
@@ -162,7 +162,7 @@ class ADEDataValSet(data.Dataset):
         std = np.array([0.229, 0.224, 0.225])
         image -= mean
         image /= std
-        
+
         #RESIZING
         img_h, img_w = label.shape
         pad_h = max(self.crop_h - img_h, 0)
