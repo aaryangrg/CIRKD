@@ -148,9 +148,13 @@ file_list = [
             #  "task_lambda_4000_iters",
             #  "b2_basic",
             #  "irregular_lr",
-            "b1_b0_025",
-            "b1_b0_50",
-            "b3_b0_25"
+            # "b1_b0_025",
+            # "b1_b0_50",
+            # "b3_b0_25",
+            "b2_b0_50",
+            "b2_b0_50_lr_lower",
+            "b3_b0_50",
+            "b1_b0_50_lowered_lr"
              ]
 
 for file in file_list :
@@ -173,3 +177,9 @@ for file in file_list :
 #scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/normalized/kd_b1_pretrained_b0_cityscapes_batch_6_lr_0.0001_decay_1_task_lambda_0.25_iters_35000_log.txt b1_b0_025.txt
 #scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/normalized/kd_b1_pretrained_b0_cityscapes_batch_6_lr_0.0001_decay_1_task_lambda_0.5_iters_35000_log.txt  b1_b0_50.txt
 #scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/normalized/kd_b3_pretrained_b0_cityscapes_batch_8_lr_0.0001_decay_1_task_lambda_0.25_iters_35000_log.txt b3_b0_25.txt
+
+
+#scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/normalized/kd_b2_pretrained_b0_cityscapes_batch_6_lr_0.0001_decay_1_task_lambda_0.5_iters_35000_log.txt b2_b0_50.txt
+#scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/normalized/kd_b2_pretrained_b0_cityscapes_batch_6_lr_5e-05_decay_1_task_lambda_0.5_iters_35000_log.txt b2_b0_50_lr_lower.txt
+#scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/normalized/kd_b3_pretrained_b0_cityscapes_batch_8_lr_0.0001_decay_1_task_lambda_0.5_iters_35000_log.txt b3_b0_50.txt
+#scp aaryang@crcv.eecs.ucf.edu:/home/aaryang/experiments/CIRKD/logs/pretrained/normalized/kd_b1_pretrained_b0_cityscapes_batch_6_lr_1e-05_decay_1_task_lambda_0.5_iters_35000_log.txt b1_b0_50_lowered_lr.txt

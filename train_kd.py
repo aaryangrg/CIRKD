@@ -145,7 +145,7 @@ class Trainer(object):
                                         crop_size=(1024, 2048), scale=False, mirror=False)
         elif args.dataset == 'voc':
             train_dataset = VOCDataTrainSet(args.data, './dataset/list/voc/train_aug.txt', max_iters=args.max_iterations*args.batch_size,
-                                            crop_size=args.crop_size, scale=True, mirror=True)
+                                            crop_size=(512,512), scale=True, mirror=True)
             val_dataset = VOCDataValSet(
                 args.data, './dataset/list/voc/val.txt')
         elif args.dataset == 'ade20k':
